@@ -2,6 +2,8 @@
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.security.NoSuchAlgorithmException" %>
 <%@ page import="java.util.Base64" %>
+<%@ include file="checkLogin.jsp" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
