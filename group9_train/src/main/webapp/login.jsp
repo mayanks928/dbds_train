@@ -3,6 +3,7 @@
 <%@ page import="java.security.NoSuchAlgorithmException"%>
 <%@ page import="java.util.Base64"%>
 <%@ page session="true"%>
+<%@ include file="navbar.jsp" %>
 <%@ include file="checkLogin.jsp" %>
 
 <!DOCTYPE html>
@@ -56,7 +57,10 @@ button:hover {
 }
 </style>
 </head>
+
 <body>
+
+
 	<div class="container">
 
 		<%
@@ -69,7 +73,7 @@ button:hover {
 		session.removeAttribute("logoutMessage");
 		}
 		%>
-		<h1>Login</h1>
+		<h1>Customer Login</h1>
 		<form method="POST" action="login.jsp">
 			<label for="username">Username</label> <input type="text"
 				id="username" name="username" required> <label

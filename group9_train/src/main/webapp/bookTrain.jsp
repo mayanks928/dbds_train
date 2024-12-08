@@ -130,7 +130,7 @@ button:hover {
 		<input type="hidden" name="originId" value="<%=originId%>"> <input
 			type="hidden" name="destinationId" value="<%=destinationId%>">
 		<input type="hidden" name="customerId" value="<%=customerId%>">
-		<input type="hidden" name="totalFare" id="totalFareInput"> <input
+		<input type="hidden" name="totalFare" id="totalFareInput" value=0> <input
 			type="hidden" name="date" value="<%=date%>"> <input
 			type="hidden" name="fare" value="<%=fare%>"> <label>Number
 			of Tickets:</label> <input type="number" name="ticketCount" id="ticketCount"
@@ -239,15 +239,18 @@ button:hover {
         function handleSubmit(event) {
             // Validate if tickets have been added
             const ticketCount = parseInt(document.getElementById('ticketCount').value);
-            if (ticketCount <= 0) {
+			const totalFare=document.getElementById('totalFareInput').value
+            console.log(ticketCount,totalFare)
+            
+            if (ticketCount <= 0 || totalFare<=0) {
                 alert('Please add at least one ticket before submitting.');
                 event.preventDefault(); // Prevent form submission
                 return; // Exit the function
             }
 
             // Ask user for confirmation
-/*             const isConfirmed = confirm('Are you sure you want to confirm the reservation?'); */
-				const isConfirmed=true;
+             const isConfirmed = confirm('Are you sure you want to confirm the reservation?'); 
+				
 
             if (isConfirmed) {
                 // Loop through all ticket options and gather the ticket data
@@ -276,8 +279,6 @@ button:hover {
 
                 // Append the hidden input to the form
                 document.getElementById('reservationForm').appendChild(ticketsDataInput);
-                event.preventDefault();
-                return false;
                 // Submit the form
                 /* document.getElementById('reservationForm').submit(); */
             } else {

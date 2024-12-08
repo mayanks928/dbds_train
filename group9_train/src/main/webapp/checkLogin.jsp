@@ -1,9 +1,9 @@
 <%@ page session="true" %>
 <%
-    String loggedInUser = (String) session.getAttribute("loggedInUser");
-    if (loggedInUser != null) {
+    String loggedInUser2 = (String) session.getAttribute("loggedInUser");
+    if (loggedInUser2 != null) {
         session.setAttribute("loggedInMessage", "You are already logged in.");
-        response.sendRedirect("welcome.jsp");
+        response.sendRedirect("index.jsp");
         return;
     }
 %>

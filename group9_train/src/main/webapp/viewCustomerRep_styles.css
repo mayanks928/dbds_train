@@ -1,0 +1,104 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.add-rep {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.add-rep .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.add-rep .btn:hover {
+    background-color: #0056b3;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    padding: 10px 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f8f8f8;
+    color: #555;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+table .btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    color: white;
+}
+
+table .btn.edit {
+    background-color: #28a745;
+}
+
+table .btn.edit:hover {
+    background-color: #218838;
+}
+
+table .btn.delete {
+    background-color: #dc3545;
+}
+
+table .btn.delete:hover {
+    background-color: #c82333;
+}
+
+p {
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+}
+    .success-message {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        border: 1px solid #c3e6cb;
+        border-radius: 4px;
+        font-size: 16px;
+    }

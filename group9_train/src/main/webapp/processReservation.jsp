@@ -1,125 +1,122 @@
-<%@ page import="java.sql.*, java.text.SimpleDateFormat, java.util.Date"%>
-<%@ page import="com.example.util.DBConnectionUtil" %>
+<%@ page import="com.example.util.DBConnectionUtil, java.sql.*, java.util.*, org.json.*" %>
 <%@ page session="true"%>
+<%@ include file="navbar.jsp" %>
 <%
-// Retrieve parameters from the form
-    String transitId = request.getParameter("transitId");
-    String originId = request.getParameter("originId");
-    String destinationId = request.getParameter("destinationId");
-    String date = request.getParameter("date");
-    double totalFare = Double.parseDouble(request.getParameter("totalFare"));
-    String paymentMode = request.getParameter("payment_mode");
-    String customerId = request.getParameter("customerID");
-    if (customerId == null) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
-
-    // Initialize database connection
+    // Database connection
     Connection conn = null;
-    PreparedStatement reservationStmt = null;
-    PreparedStatement ticketStmt = null;
-    ResultSet generatedKeys = null;
+    PreparedStatement psReservation = null;
+    PreparedStatement psTicket = null;
 
     try {
-        // Connect to the database
-conn = DBConnectionUtil.getConnection();
-conn.setAutoCommit(false); // Start transaction
+        // Database connection setup
+        conn = DBConnectionUtil.getConnection();
+        conn.setAutoCommit(false);
 
-// 1. Insert into Reservation table
-String reservationSql = "INSERT INTO Reservation (customer_id, total_fare, payment_mode, reservedAt, departure_from, destination_at, reservedForTransit) "
-		+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
-reservationStmt = conn.prepareStatement(reservationSql, Statement.RETURN_GENERATED_KEYS);
-reservationStmt.setInt(1, Integer.parseInt(customerId));
-reservationStmt.setDouble(2, totalFare);
-reservationStmt.setString(3, paymentMode);
-reservationStmt.setTimestamp(4, new java.sql.Timestamp(System.currentTimeMillis())); // reservedAt
-reservationStmt.setInt(5, Integer.parseInt(originId)); // departure_from
-reservationStmt.setInt(6, Integer.parseInt(destinationId)); // destination_at
-reservationStmt.setInt(7, Integer.parseInt(transitId)); // reservedForTransit
-int affectedRows = reservationStmt.executeUpdate();
+        // Retrieve form data
+        int customerId = Integer.parseInt(request.getParameter("customerId"));
+        double totalFare = Double.parseDouble(request.getParameter("totalFare"));
+        String paymentMode = request.getParameter("payment_mode");
+        int originId = Integer.parseInt(request.getParameter("originId"));
+        int destinationId = Integer.parseInt(request.getParameter("destinationId"));
+        int transitId = Integer.parseInt(request.getParameter("transitId"));
+        String ticketsDataJson = request.getParameter("ticketsData");
 
-// If the insertion was successful, get the generated reservation number
-if (affectedRows > 0) {
-	generatedKeys = reservationStmt.getGeneratedKeys();
-	generatedKeys.next();
-	int reservationNo = generatedKeys.getInt(1);
+        // Parse ticketsData JSON
+        JSONArray ticketsData = new JSONArray(ticketsDataJson);
 
-	// 2. Insert tickets into Ticket table
-	int ticketCount = Integer.parseInt(request.getParameter("ticketCount"));
+        // Insert into Reservation table
+        String sqlReservation = "INSERT INTO Reservation (customer_id, total_fare, payment_mode, reservedAt, departure_from, destination_at, reservedForTransit) VALUES (?, ?, ?, NOW(), ?, ?, ?)";
+        psReservation = conn.prepareStatement(sqlReservation, Statement.RETURN_GENERATED_KEYS);
+        psReservation.setInt(1, customerId);
+        psReservation.setDouble(2, totalFare);
+        psReservation.setString(3, paymentMode);
+        psReservation.setInt(4, originId);
+        psReservation.setInt(5, destinationId);
+        psReservation.setInt(6, transitId);
+        psReservation.executeUpdate();
 
-	for (int i = 1; i <= ticketCount; i++) {
-		// Get ticket type and calculate fare for each ticket
-		String ticketType = request.getParameter("ticketType" + i);
-		double ticketFare = fare;
-		if ("Child".equals(ticketType)) {
-	ticketFare *= 0.3;
-		} else if ("Senior".equals(ticketType)) {
-	ticketFare *= 0.4;
-		}
+        // Get generated reservation_no
+        ResultSet rsReservation = psReservation.getGeneratedKeys();
+        rsReservation.next();
+        int reservationNo = rsReservation.getInt(1);
 
-		String tripType = request.getParameter("tripType" + i);
-		if ("RoundTrip".equals(tripType)) {
-	// Add ticket for reverse trip (destination to origin)
-	ticketStmt = conn.prepareStatement(
-			"INSERT INTO Ticket (reservation_no, ticket_no, fare, ticketType, activatedAt, isExpired) VALUES (?, ?, ?, ?, NULL, ?)");
-	ticketStmt.setInt(1, reservationNo);
-	ticketStmt.setInt(2, i); // Generate ticket_no based on the loop
-	ticketStmt.setDouble(3, ticketFare);
-	ticketStmt.setString(4, ticketType);
-	ticketStmt.setBoolean(5, false); // Not expired
-	ticketStmt.executeUpdate();
+        // Insert tickets into Ticket table
+        String sqlTicket = "INSERT INTO Ticket (reservation_no, ticket_no, fare, ticketType, activatedAt, isExpired,isReturn) VALUES (?, ?, ?, ?, NULL, 0,?)";
+        psTicket = conn.prepareStatement(sqlTicket);
 
-	// Reverse ticket from destination to origin
-	ticketStmt.setInt(2, i + ticketCount); // Reverse ticket_no
-	ticketStmt.setInt(3, reservationNo); // reservation_no
-	ticketStmt.setDouble(3, ticketFare);
-	ticketStmt.setString(4, ticketType);
-	ticketStmt.setBoolean(5, false); // Not expired
-	ticketStmt.executeUpdate();
-		} else {
-	// Insert for one-way trip
-	ticketStmt = conn.prepareStatement(
-			"INSERT INTO Ticket (reservation_no, ticket_no, fare, ticketType, activatedAt, isExpired) VALUES (?, ?, ?, ?, NULL, ?)");
-	ticketStmt.setInt(1, reservationNo);
-	ticketStmt.setInt(2, i);
-	ticketStmt.setDouble(3, ticketFare);
-	ticketStmt.setString(4, ticketType);
-	ticketStmt.setBoolean(5, false); // Not expired
-	ticketStmt.executeUpdate();
-		}
-	}
-}
+        int ticketNo = 1; // Initialize ticket number
+        for (int i = 0; i < ticketsData.length(); i++) {
+            JSONObject ticket = ticketsData.getJSONObject(i);
 
-// Commit the transaction
-conn.commit();
-out.println("Reservation confirmed!");
-} catch (Exception e) {
-if (conn != null) {
-	try {
-		conn.rollback(); // Rollback if an error occurs
-	} catch (SQLException ex) {
-		e.printStackTrace();
-	}
-}
-out.println("Error: " + e.getMessage());
-} finally {
-// Clean up resources
-try {
-	if (generatedKeys != null) {
-		generatedKeys.close();
-	}
-	if (ticketStmt != null) {
-		ticketStmt.close();
-	}
-	if (reservationStmt != null) {
-		reservationStmt.close();
-	}
-	if (conn != null) {
-		conn.close();
-	}
-} catch (SQLException e) {
-	e.printStackTrace();
-}
-}
+            String ticketType = ticket.getString("ticketType");
+            double fare = ticket.getDouble("fare");
+            String tripType = ticket.getString("tripType");
+            // Add return ticket for round trip
+            if ("RoundTrip".equals(tripType)) {
+                psTicket.setInt(1, reservationNo);
+                psTicket.setInt(2, ticketNo++);
+                psTicket.setDouble(3, fare / 2);
+                psTicket.setString(4, ticketType);
+                psTicket.setBoolean(5, false);
+                psTicket.addBatch();
+
+                psTicket.setInt(1, reservationNo);
+                psTicket.setInt(2, ticketNo++);
+                psTicket.setDouble(3, fare / 2);
+                psTicket.setString(4, ticketType);
+                psTicket.setBoolean(5, true);
+                psTicket.addBatch();
+            } else {
+                // Add outbound ticket
+                psTicket.setInt(1, reservationNo);
+                psTicket.setInt(2, ticketNo++);
+                psTicket.setDouble(3, fare);
+                psTicket.setString(4, ticketType);
+                psTicket.setBoolean(5, false);
+                psTicket.addBatch();
+            }
+        }
+
+        // Execute ticket insertions
+        psTicket.executeBatch();
+        // Commit the transaction if everything is successful
+        conn.commit();
+
+        // Store reservationNo in session
+        session.setAttribute("reservationNo", reservationNo);
+        session.setAttribute("errorMessage", null); // Clear any previous error messages
+
+        // Redirect to the confirmation page
+        response.sendRedirect("confirmation.jsp");
+
+    } catch (Exception e) {
+        // If any error occurs, rollback the transaction to ensure no partial data is saved
+        try {
+            if (conn != null) {
+                conn.rollback();
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        }
+
+        // Store error message in session
+        
+        session.setAttribute("errorMessage", "An error occurred while processing your reservation. Please try again.");
+
+        e.printStackTrace();
+        // Redirect to the confirmation page to display the error message
+        response.sendRedirect("confirmation.jsp");
+    } finally {
+        // Close resources
+        try {
+            if (psReservation != null) psReservation.close();
+            if (psTicket != null) psTicket.close();
+            if (conn != null) {
+                conn.setAutoCommit(true); // Set auto-commit back to true
+                conn.close();
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        }
+    }
 %>
