@@ -5,75 +5,39 @@
 <%@ include file="navbar.jsp" %>
 <%@ include file="checkLogin.jsp" %>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Registration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label, input, button {
-            margin-top: 10px;
-            font-size: 16px;
-            padding: 10px;
-        }
-        button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Register</h1>
+<div class="container my-5" style="max-width:500px;">
+    <h1 class="text-center mb-4">Register</h1>
+    <div class="card p-4 shadow-sm">
         <form method="POST" action="register.jsp">
-            <label for="first_name">First Name</label>
-            <input type="text" id="first_name" name="first_name" required>
-            
-            <label for="last_name">Last Name</label>
-            <input type="text" id="last_name" name="last_name">
-            
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
-            
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
-            
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-            
-            <button type="submit">Register</button>
+            <div class="mb-3">
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" id="first_name" name="first_name" required class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" id="last_name" name="last_name" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" required class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" required class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" required class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Register</button>
         </form>
 
         <%
-            // Check if the form was submitted
             if (request.getMethod().equalsIgnoreCase("POST")) {
                 String firstName = request.getParameter("first_name");
                 String lastName = request.getParameter("last_name");
@@ -81,7 +45,6 @@
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
 
-                // Hash the password using SHA-256
                 String hashedPassword = null;
                 try {
                     MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -92,17 +55,11 @@
                 }
 
                 if (hashedPassword != null) {
-                    // Database connection details
                     Connection conn = null;
                     PreparedStatement pstmt = null;
-
                     try {
-                        // Connect to the database
-
-                        // Insert customer data into the database
                         String sql = "INSERT INTO Customer (first_name, last_name, email, username, password) VALUES (?, ?, ?, ?, ?)";
                         conn = DBConnectionUtil.getConnection();
-                        pstmt = conn.prepareStatement(sql);
                         pstmt = conn.prepareStatement(sql);
                         pstmt.setString(1, firstName);
                         pstmt.setString(2, lastName);
@@ -112,20 +69,19 @@
 
                         int rowsInserted = pstmt.executeUpdate();
                         if (rowsInserted > 0) {
-                            out.println("<p>Registration successful!</p>");
+                            out.println("<div class='alert alert-success mt-3'>Registration successful!</div>");
                         } else {
-                            out.println("<p>Failed to register. Please try again.</p>");
+                            out.println("<div class='alert alert-danger mt-3'>Failed to register. Please try again.</div>");
                         }
                     } catch (Exception e) {
-                        out.println("<p>Error: " + e.getMessage() + "</p>");
+                        out.println("<div class='alert alert-danger mt-3'>Error: " + e.getMessage() + "</div>");
                         e.printStackTrace();
                     } finally {
-                        if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
-                        if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
+                        if (pstmt != null) pstmt.close();
+                        if (conn != null) conn.close();
                     }
                 }
             }
         %>
     </div>
-</body>
-</html>
+</div>

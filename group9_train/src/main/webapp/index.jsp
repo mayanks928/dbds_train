@@ -1,103 +1,49 @@
 <%@ include file="navbar.jsp"%>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Welcome</title>
-<style>
-body {
-	font-family: Arial, sans-serif;
-	background-color: #f4f4f9;
-	margin: 0;
-	/* padding: 20px; */
-}
+<%
+    String logoutMessage = (String) session.getAttribute("logoutMessage");
+    String loggedInMessage = (String) session.getAttribute("loggedInMessage");
+%>
+<div class="container my-5">
+    <% if (logoutMessage != null) { %>
+    <div class="alert alert-warning" role="alert">
+        <%= logoutMessage %>
+    </div>
+    <%
+       session.removeAttribute("logoutMessage");
+    } 
+    if (loggedInMessage != null) {
+    %>
+    <div class="alert alert-success" role="alert">
+        <%= loggedInMessage %>
+    </div>
+    <%
+       session.removeAttribute("loggedInMessage");
+    }
+    %>
+    <h1 class="text-center mb-5">Welcome to the Train Reservation System</h1>
+    <div class="row g-4">
+        <!-- Employee Section -->
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm">
+                <h2 class="text-primary text-center">If you are an Employee</h2>
+                <p class="text-center mt-3">Access your account here:</p>
+                <div class="d-grid">
+                    <a href="employeeLogin.jsp" class="btn btn-primary">Employee Login</a>
+                </div>
+            </div>
+        </div>
 
-h1 {
-	text-align: center;
-	color: #333;
-}
-
-.container {
-	display: flex;
-	justify-content: space-around;
-	margin-top: 50px;
-}
-
-.section {
-	width: 45%;
-	background-color: #fff;
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.section h2 {
-	text-align: center;
-	color: #007bff;
-}
-
-.section p {
-	text-align: center;
-	margin: 15px 0;
-}
-
-.section a {
-	display: block;
-	margin: 10px auto;
-	text-align: center;
-	text-decoration: none;
-	font-size: 16px;
-	color: #fff;
-	background-color: #007bff;
-	padding: 10px 15px;
-	border-radius: 5px;
-	transition: background-color 0.3s ease;
-}
-
-.section a:hover {
-	background-color: #0056b3;
-}
-</style>
-</head>
-<body>
-	<%
-	String logoutMessage = (String) session.getAttribute("logoutMessage");
-	if (logoutMessage != null) {
-	%>
-	<p style="color: red; font-weight: bold;"><%=logoutMessage%></p>
-	<%
-	// Clear the message from the session after displaying it
-	session.removeAttribute("logoutMessage");
-	}
-
-	String loggedInMessage = (String) session.getAttribute("loggedInMessage");
-	if (loggedInMessage != null) {
-	%>
-	<p style="color: green; font-weight: bold;"><%=loggedInMessage%></p>
-	<%
-	// Clear the message from the session after displaying it
-	session.removeAttribute("loggedInMessage");
-	}
-	%>
-	<h1>Welcome to the Train Reservation System</h1>
-
-	<div class="container">
-		<!-- Employee Section -->
-		<div class="section">
-			<h2>If you are an Employee</h2>
-			<p>Access your account here:</p>
-			<a href="employeeLogin.jsp">Employee Login</a>
-		</div>
-
-		<!-- Customer Section -->
-		<div class="section">
-			<h2>If you are a Customer</h2>
-			<p>Explore our services:</p>
-			<a href="register.jsp">Register</a> <a href="login.jsp">Customer
-				Login</a> <a href="findTrain.jsp">Find Trains</a>
-		</div>
-	</div>
-
-</body>
-</html>
+        <!-- Customer Section -->
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm">
+                <h2 class="text-primary text-center">If you are a Customer</h2>
+                <p class="text-center mt-3">Explore our services:</p>
+                <div class="d-grid gap-2">
+                    <a href="register.jsp" class="btn btn-primary">Register</a>
+                    <a href="login.jsp" class="btn btn-primary">Customer Login</a>
+                    <a href="findTrain.jsp" class="btn btn-primary">Find Trains</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

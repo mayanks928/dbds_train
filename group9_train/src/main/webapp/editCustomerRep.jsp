@@ -2,12 +2,10 @@
 <%@ include file="checkAdmin.jsp"%>
 <%@ include file="navbar.jsp"%>
 <%
-    // Initialize variables
     String employeeId = request.getParameter("employeeId");
     String errorMessage = null;
     String successMessage = null;
 
-    // Declare employee details variables
     String ssn = "";
     String username = "";
     String password = "";
@@ -17,22 +15,20 @@
 
     if (employeeId != null) {
         try (Connection conn = com.example.util.DBConnectionUtil.getConnection()) {
-            // Fetch existing employee details
-            String sql = "SELECT ssn, username,password, first_name, last_name, role FROM Employee WHERE employee_id = ?";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setInt(1, Integer.parseInt(employeeId));
-                ResultSet rs = ps.executeQuery();
+            String sql = "SELECT ssn, username, password, first_name, last_name, role FROM Employee WHERE employee_id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, Integer.parseInt(employeeId));
+            ResultSet rs = ps.executeQuery();
 
-                if (rs.next()) {
-                    ssn = rs.getString("ssn");
-                    username = rs.getString("username");
-                    password=rs.getString("password");
-                    firstName = rs.getString("first_name");
-                    lastName = rs.getString("last_name");
-                    role = rs.getString("role");
-                } else {
-                    errorMessage = "No Customer Representative found with the provided ID.";
-                }
+            if (rs.next()) {
+                ssn = rs.getString("ssn");
+                username = rs.getString("username");
+                password = rs.getString("password");
+                firstName = rs.getString("first_name");
+                lastName = rs.getString("last_name");
+                role = rs.getString("role");
+            } else {
+                errorMessage = "No Customer Representative found with the provided ID.";
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,7 +36,6 @@
         }
     }
 
-    // Handle form submission
     if (request.getMethod().equalsIgnoreCase("POST")) {
         ssn = request.getParameter("ssn");
         username = request.getParameter("username");
@@ -51,23 +46,22 @@
 
         try (Connection conn = com.example.util.DBConnectionUtil.getConnection()) {
             String updateSql = "UPDATE Employee SET ssn = ?, username = ?, password = ?, first_name = ?, last_name = ?, role = ? WHERE employee_id = ?";
-            try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
-                ps.setString(1, ssn);
-                ps.setString(2, username);
-                ps.setString(3, password);
-                ps.setString(4, firstName);
-                ps.setString(5, lastName);
-                ps.setString(6, role);
-                ps.setInt(7, Integer.parseInt(employeeId));
+            PreparedStatement ps = conn.prepareStatement(updateSql);
+            ps.setString(1, ssn);
+            ps.setString(2, username);
+            ps.setString(3, password);
+            ps.setString(4, firstName);
+            ps.setString(5, lastName);
+            ps.setString(6, role);
+            ps.setInt(7, Integer.parseInt(employeeId));
 
-                int rowsUpdated = ps.executeUpdate();
-                if (rowsUpdated > 0) {
-                    successMessage = "Customer Representative details updated successfully!";
-                    response.sendRedirect("viewCustomerRep.jsp");
-                    return;
-                } else {
-                    errorMessage = "Failed to update Customer Representative details.";
-                }
+            int rowsUpdated = ps.executeUpdate();
+            if (rowsUpdated > 0) {
+                successMessage = "Customer Representative details updated successfully!";
+                response.sendRedirect("viewCustomerRep.jsp");
+                return;
+            } else {
+                errorMessage = "Failed to update Customer Representative details.";
             }
         } catch (SQLIntegrityConstraintViolationException e) {
             if (e.getMessage().contains("ssn")) {
@@ -83,118 +77,47 @@
         }
     }
 %>
+<div class="container my-5" style="max-width:600px;">
+    <h1 class="text-center mb-4">Edit Customer Representative</h1>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edit Customer Representative</title>
-<style>
-body {
-	font-family: Arial, sans-serif;
-	margin: 0;
-	padding: 0;
-	background-color: #f4f4f4;
-}
+    <% if (errorMessage != null) { %>
+    <div class="alert alert-danger" role="alert"><%= errorMessage %></div>
+    <% } else if (successMessage != null) { %>
+    <div class="alert alert-success" role="alert"><%= successMessage %></div>
+    <% } %>
 
-.container {
-	max-width: 600px;
-	margin: 50px auto;
-	background: #fff;
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-	font-size: 24px;
-	text-align: center;
-}
-
-form {
-	margin-top: 20px;
-}
-
-label {
-	display: block;
-	font-weight: bold;
-	margin-bottom: 5px;
-}
-
-input, select {
-	width: 100%;
-	padding: 10px;
-	margin-bottom: 15px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-}
-
-button {
-	width: 100%;
-	padding: 10px;
-	background: #007bff;
-	color: #fff;
-	border: none;
-	border-radius: 4px;
-	font-size: 16px;
-	cursor: pointer;
-}
-
-button:hover {
-	background: #0056b3;
-}
-
-.error-message {
-	color: #d9534f;
-	margin-bottom: 15px;
-}
-
-.success-message {
-	color: #5cb85c;
-	margin-bottom: 15px;
-}
-</style>
-</head>
-<body>
-	<div class="container">
-		<h1>Edit Customer Representative</h1>
-
-		<% if (errorMessage != null) { %>
-		<div class="error-message"><%= errorMessage %></div>
-		<% } else if (successMessage != null) { %>
-		<div class="success-message"><%= successMessage %></div>
-		<% } %>
-
-		<% 
-        
-		if (employeeId != null && errorMessage == null) { 
-        
-        %>
-		<form method="POST"
-			action="editCustomerRep.jsp?employee_id=<%= employeeId %>">
-			<label for="ssn">SSN:</label> <input type="text" id="ssn" name="ssn"
-				value="<%= ssn %>" required> <label for="username">Username:</label>
-			<input type="text" id="username" name="username"
-				value="<%= username %>" required> <label for="password">Password:</label>
-			<input type="password" id="password" name="password" 
-			value=<%= password %> required>
-
-			<label for="first_name">First Name:</label> <input type="text"
-				id="first_name" name="first_name" value="<%= firstName %>" required>
-
-			<label for="last_name">Last Name:</label> <input type="text"
-				id="last_name" name="last_name" value="<%= lastName %>"> <label
-				for="role">Role:</label> <select id="role" name="role" required>
-				<option value="CustomerRepresentative"
-					<%= "CustomerRepresentative".equals(role) ? "selected" : "" %>>Customer
-					Representative</option>
-				<option value="Admin" <%= "Admin".equals(role) ? "selected" : "" %>>Admin</option>
-			</select>
-
-			<button type="submit">Update Customer Representative</button>
-		</form>
-		<% } %>
-	</div>
-</body>
-</html>
+    <% if (employeeId != null && errorMessage == null) { %>
+    <div class="card p-4 shadow-sm">
+        <form method="POST" action="editCustomerRep.jsp?employeeId=<%= employeeId %>">
+            <div class="mb-3">
+                <label for="ssn" class="form-label">SSN:</label>
+                <input type="text" id="ssn" name="ssn" value="<%= ssn %>" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" id="username" name="username" value="<%= username %>" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" id="password" name="password" value="<%= password %>" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="first_name" class="form-label">First Name:</label>
+                <input type="text" id="first_name" name="first_name" value="<%= firstName %>" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Last Name:</label>
+                <input type="text" id="last_name" name="last_name" value="<%= lastName %>" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">Role:</label>
+                <select id="role" name="role" required class="form-select">
+                    <option value="CustomerRepresentative" <%= "CustomerRepresentative".equals(role) ? "selected" : "" %>>Customer Representative</option>
+                    <option value="Admin" <%= "Admin".equals(role) ? "selected" : "" %>>Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Update Customer Representative</button>
+        </form>
+    </div>
+    <% } %>
+</div>
