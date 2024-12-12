@@ -6,7 +6,8 @@ String originId = request.getParameter("origin");
 String destinationId = request.getParameter("destination");
 String date = request.getParameter("date");
 String sortOption = request.getParameter("sortOption") != null ? request.getParameter("sortOption") : "origin_arrival_time";
-String loggedInUser = (String) session.getAttribute("loggedInUser");
+loggedInUser = (String) session.getAttribute("loggedInUser");
+
 
 Connection conn = null;
 PreparedStatement ps = null;

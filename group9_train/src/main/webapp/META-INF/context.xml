@@ -11,6 +11,6 @@
     driverClassName="com.mysql.cj.jdbc.Driver"
     url="jdbc:mysql://localhost:3306/group9_train"
     username="root"
-    password="hello123"
+    password="Server@23mysql"
 />
 </Context>

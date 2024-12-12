@@ -26,16 +26,18 @@
 
                 try {
                     conn = DBConnectionUtil.getConnection();
-                    String sql = "SELECT role, first_name FROM Employee WHERE username = ? AND password = ?";
+                    String sql = "SELECT employee_id, role, first_name FROM Employee WHERE username = ? AND password = ?";
                     ps = conn.prepareStatement(sql);
                     ps.setString(1, username);
                     ps.setString(2, password);
 
                     rs = ps.executeQuery();
                     if (rs.next()) {
+                        int employeeId = rs.getInt("employee_id"); // Fetch employeeId
                         String role = rs.getString("role");
                         String firstName = rs.getString("first_name");
 
+                        session.setAttribute("employeeId", employeeId); // Set employeeId in session
                         session.setAttribute("loggedInUser", username);
                         session.setAttribute("userRole", role);
                         session.setAttribute("firstName", firstName);

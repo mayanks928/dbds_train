@@ -10,7 +10,7 @@ String destinationId = request.getParameter("destinationId");
 String date = request.getParameter("date");
 double fare = Double.parseDouble(request.getParameter("fare"));
 
-String loggedInUser = (String) session.getAttribute("loggedInUser");
+loggedInUser = (String) session.getAttribute("loggedInUser");
 if (loggedInUser == null) {
     response.sendRedirect("login.jsp");
     return;

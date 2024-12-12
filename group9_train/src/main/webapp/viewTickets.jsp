@@ -42,6 +42,18 @@ try {
         tickets.add(ticketData);
     }
 %>
+<%
+    String message = request.getParameter("message");
+    if (message != null) {
+%>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= message %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<%
+    }
+%>
+
 <div class="container my-5">
     <h1 class="text-center mb-4">Tickets for Reservation #<%= reservationNo %></h1>
 
@@ -86,13 +98,24 @@ try {
         <p class="text-danger fw-bold">Activation not allowed: Reservation canceled</p>
         <% } else if (activatedAt == null) { %>
         <p><strong>Status:</strong> Not Activated</p>
-        <form action="activateTicket.jsp" method="post">
-            <input type="hidden" name="ticketNo" value="<%= ticketNo %>">
-            <input type="hidden" name="reservationNo" value="<%= reservationNo %>">
-            <button type="submit" class="btn btn-primary btn-sm">Activate Ticket</button>
-        </form>
+<form action="activateTicket.jsp" method="post">
+    <input type="hidden" name="ticketNo" value="<%= ticketNo %>">
+    <% 
+        Enumeration<String> parameterNames = request.getParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            String paramName = parameterNames.nextElement();
+            String paramValue = request.getParameter(paramName);
+            if (!"ticketNo".equals(paramName)) { // Avoid duplicating ticketNo
+    %>
+    <input type="hidden" name="<%= paramName %>" value="<%= paramValue %>">
+    <% 
+            }
+        }
+    %>
+    <button type="submit" class="btn btn-primary btn-sm">Activate Ticket</button>
+</form>
         <% } else { %>
-        <p><strong>Activated At:</strong> <%= activatedAt.toString() %></p>
+        <p class="text-danger bg-info p-2"><strong>Activated At:</strong> <%= activatedAt.toString() %></p>
         <% if (isExpired) { %>
         <p class="text-danger fw-bold">This ticket is expired.</p>
         <% } else { %>
