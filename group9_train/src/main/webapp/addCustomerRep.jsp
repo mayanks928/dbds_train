@@ -77,7 +77,7 @@
                 <label for="role" class="form-label">Role:</label>
                 <select id="role" name="role" required class="form-select">
                     <option value="CustomerRepresentative">Customer Representative</option>
-                    <option value="Admin">Admin</option>
+                    
                 </select>
             </div>
             <button type="submit" class="btn btn-primary w-100">Add Representative</button>

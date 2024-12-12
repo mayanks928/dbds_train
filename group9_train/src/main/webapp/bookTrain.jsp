@@ -12,51 +12,65 @@ double fare = Double.parseDouble(request.getParameter("fare"));
 
 loggedInUser = (String) session.getAttribute("loggedInUser");
 if (loggedInUser == null) {
-    response.sendRedirect("login.jsp");
-    return;
+	response.sendRedirect("login.jsp");
+	return;
 }
 int customerId = (int) session.getAttribute("customerId");
 %>
-<div class="container my-5" style="max-width:700px;">
-    <h1 class="text-center mb-4">Book Ticket for Transit: <%=transitName%></h1>
-    <div class="alert alert-info">
-        <p><strong>Depart from:</strong> <%=originName%></p>
-        <p><strong>Arrive at:</strong> <%=destinationName%></p>
-        <p><strong>Regular Ticket Fare:</strong> $<%=fare%></p>
-    </div>
-    <div class="card p-4 shadow-sm">
-        <form id="reservationForm" method="POST" action="processReservation.jsp">
-            <input type="hidden" name="transitId" value="<%=transitId%>">
-            <input type="hidden" name="originId" value="<%=originId%>">
-            <input type="hidden" name="destinationId" value="<%=destinationId%>">
-            <input type="hidden" name="customerId" value="<%=customerId%>">
-            <input type="hidden" name="totalFare" id="totalFareInput" value="0">
-            <input type="hidden" name="date" value="<%=date%>">
-            <input type="hidden" name="fare" value="<%=fare%>">
+<div class="container my-5" style="max-width: 700px;">
+	<h1 class="text-center mb-4">
+		Book Ticket for Transit:
+		<%=transitName%></h1>
+	<div class="alert alert-info">
+		<p>
+			<strong>Depart from:</strong>
+			<%=originName%></p>
+		<p>
+			<strong>Arrive at:</strong>
+			<%=destinationName%></p>
+		<p>
+			<strong>Regular Ticket Fare:</strong> $<%=fare%></p>
+	</div>
+	<div class="card p-4 shadow-sm">
+		<form id="reservationForm" method="POST"
+			action="processReservation.jsp">
+			<input type="hidden" name="transitId" value="<%=transitId%>">
+			<input type="hidden" name="originId" value="<%=originId%>"> <input
+				type="hidden" name="destinationId" value="<%=destinationId%>">
+			<input type="hidden" name="customerId" value="<%=customerId%>">
+			<input type="hidden" name="totalFare" id="totalFareInput" value="0">
+			<input type="hidden" name="date" value="<%=date%>"> <input
+				type="hidden" name="fare" value="<%=fare%>">
 
-            <div class="mb-3">
-                <label for="ticketCount" class="form-label">Number of Tickets:</label>
-                <input type="number" name="ticketCount" id="ticketCount" min="1" class="form-control" required onkeydown="return event.key != 'Enter';">
-            </div>
-            <button type="button" class="btn btn-primary mb-3" onclick="addTicketOptions()">Select Tickets</button>
-            
-            <div id="ticketOptions"></div>
+			<div class="mb-3">
+				<label for="ticketCount" class="form-label">Number of
+					Tickets:</label> <input type="number" name="ticketCount" id="ticketCount"
+					min="1" class="form-control" required
+					onkeydown="return event.key != 'Enter';">
+			</div>
+			<button type="button" class="btn btn-primary mb-3"
+				onclick="addTicketOptions()">Select Tickets</button>
 
-            <p class="fw-bold mt-3">Total Price: $<span id="totalPrice">0.00</span></p>
+			<div id="ticketOptions"></div>
 
-            <div class="mb-3">
-                <label for="payment_mode" class="form-label">Payment Mode:</label>
-                <select name="payment_mode" id="payment_mode" class="form-select">
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Debit Card">Debit Card</option>
-                    <option value="Apple Pay">Apple Pay</option>
-                    <option value="Paypal">Paypal</option>
-                    <option value="Google Wallet">Google Wallet</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Confirm Reservation</button>
-        </form>
-    </div>
+			<p class="fw-bold mt-3">
+				Total Price: $<span id="totalPrice">0.00</span>
+			</p>
+
+			<div class="mb-3">
+				<label for="payment_mode" class="form-label">Payment Mode:</label> <select
+					name="payment_mode" id="payment_mode" class="form-select">
+					<option value="Credit Card">Credit Card</option>
+					<option value="Debit Card">Debit Card</option>
+					<option value="Apple Pay">Apple Pay</option>
+					<option value="Paypal">Paypal</option>
+					<option value="Google Wallet">Google Wallet</option>
+				</select>
+			</div>
+			<button type="submit" class="btn btn-success w-100">Confirm
+				Reservation</button>
+		</form>
+	</div>
 </div>
 
 <script>
@@ -69,25 +83,8 @@ function addTicketOptions() {
     for (let i = 1; i <= ticketCount; i++) {
         const ticketDiv = document.createElement('div');
         ticketDiv.className = 'card p-3 mb-3';
-        ticketDiv.innerHTML = `
-            <h5>Ticket ${i}</h5>
-            <div class="mb-3">
-                <label class="form-label">Ticket Type:</label>
-                <select name="ticketType${i}" id="ticketType${i}" class="form-select" onchange="updateTicketPrice(${i}, true)">
-                    <option value="Regular">Regular</option>
-                    <option value="Child">Child (70% Discount)</option>
-                    <option value="Senior">Senior (60% Discount)</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Trip Type:</label>
-                <select name="tripType${i}" id="tripType${i}" class="form-select" onchange="updateTicketPrice(${i}, true)">
-                    <option value="OneWay">One Way</option>
-                    <option value="RoundTrip">Round Trip</option>
-                </select>
-            </div>
-            <p>Price: $<span id="ticketPrice${i}">0.00</span></p>
-        `;
+        
+        ticketDiv.innerHTML = '<h5>Ticket ' + i + '</h5>' + '<div class="mb-3">' + '<label class="form-label">Ticket Type:</label>' + '<select name="ticketType' + i + '" id="ticketType' + i + '" class="form-select" onchange="updateTicketPrice(' + i + ', true)">' + '<option value="Regular">Regular</option>' + '<option value="Child">Child (70% Discount)</option>' + '<option value="Senior">Senior (60% Discount)</option>' + '</select>' + '</div>' + '<div class="mb-3">' + '<label class="form-label">Trip Type:</label>' + '<select name="tripType' + i + '" id="tripType' + i + '" class="form-select" onchange="updateTicketPrice(' + i + ', true)">' + '<option value="OneWay">One Way</option>' + '<option value="RoundTrip">Round Trip</option>' + '</select>' + '</div>' + '<p>Price: $<span id="ticketPrice' + i + '">0.00</span></p>';
         ticketOptions.appendChild(ticketDiv);
         updateTicketPrice(i, false);
     }
